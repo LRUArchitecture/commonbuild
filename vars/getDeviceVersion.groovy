@@ -1,9 +1,5 @@
-def call(devXmlPath) {
-   def devXmlText = readFile devXmlPath
-   devXmlText = devXmlText.trim().replaceFirst("^([\\W]+)<","<")
-   def devXml = new XmlSlurper().parseText(devXmlText)
-   def baseVersion = devXml.Version.text()
-
+def call(devXmlPath, lvVersion) {
+   bat "labview-cli --kill --lv-ver $lvVersion \"$WORKSPACE\\commonbuild\\lv\\nipkg\\readCustomDeviceVersionFromXML.vi\" -- \"${WORKSPACE}\" \"${devXmlPath}\""
+   def baseVersion = readFile "deviceVersion"
    return baseVersion
 }
-
