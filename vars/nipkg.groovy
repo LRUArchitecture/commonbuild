@@ -5,7 +5,7 @@ def call(payloadDir, devXmlPath, stagingPath, lvVersion) {
    
    def nipmAppPath = "C:\\Program Files\\National Instruments\\NI Package Manager\\nipkg.exe"
    def nipkgVersion
-   def buildNumber
+   def buildNumber = 0
    componentName = getComponentParts()['repo']
    componentBranch = getComponentParts()['branch']
 
@@ -55,12 +55,14 @@ def call(payloadDir, devXmlPath, stagingPath, lvVersion) {
    // Build nipkg using NI Package Manager CLI pack command. 
    bat "\"${nipmAppPath}\" pack \"nipkg\\${packageName}\" \"${payloadDir}\"" 
    
-   writeFile file: "build_log", text: "PackageName: ${packageName}\nPackageFileName: ${packageFilename}\nPackageFileLoc: ${payloadDir}\nPackageVersion: ${nipkgVersion}"
+   ['build_properties','build_log'].each { logfile ->
+      writeFile file: "$logfile", text: "PackageName: ${packageName}\nPackageFileName: ${packageFilename}\nPackageFileLoc: ${payloadDir}\nPackageVersion: ${nipkgVersion}"
+   }
 
    configUpdate(configurationJSON, lvVersion)
-   nipmGetInstalled()
    vipmGetInstalled(lvVersion)
-   lvGetInstalledNISoftware(lvVersion)
+   nipmGetInstalled()
+
 
    echo "Updating build number for ${componentName} (${lvVersion}) to ${buildNumber} in commonbuild-configuration repository."
    def commitMessage = "Updating ${componentName} for VeriStand ${lvVersion} to build number ${buildNumber}."
